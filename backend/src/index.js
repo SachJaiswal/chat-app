@@ -1,19 +1,33 @@
 import dotenv from "dotenv";
-dotenv.config({ path: './src/.env' });  // Load environment variables
+dotenv.config();
 
 import express from "express";
-import { connectDB } from "./lib/db.js";
+import cookieParser from "cookie-parser";
+import connectDB from "./lib/db.js";
 import authRoutes from "./routes/auth.route.js";
+import messagesRoutes from "./routes/message.route.js";
 
 const app = express();
-const PORT = process.env.PORT || 5002;
 
 // Middleware
-app.use(express.json()); // Parse JSON payloads
-// extract the token from the request header and assign it to req.user
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+
+// CORS middleware
+app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    next();
+});
 
 // Routes
 app.use("/api/auth", authRoutes);
+app.use("/api/message", messagesRoutes);
+
+const PORT = process.env.PORT || 5002;
 
 // Global Error Handler
 app.use((err, req, res, next) => {
@@ -23,8 +37,10 @@ app.use((err, req, res, next) => {
 
 const startServer = async () => {
     try {
-        await connectDB(); // Ensure DB is connected before starting server
-        app.listen(PORT, () => console.log(`Server is running on PORT: ${PORT}`));
+        await connectDB(); // Connect to MongoDB
+        app.listen(PORT, () => {
+            console.log(`Server is running on PORT: ${PORT}`);
+        });
     } catch (error) {
         console.error("Failed to start server:", error);
         process.exit(1);

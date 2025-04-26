@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-export const connectDB = async () => {
+const connectDB = async () => {
     try {
         if (!process.env.MONGODB_URI) {
             throw new Error("MONGODB_URI is not defined");
@@ -13,6 +13,8 @@ export const connectDB = async () => {
         process.exit(1); // Exit with failure
     }
 };
+
+export default connectDB;
 
 
 
