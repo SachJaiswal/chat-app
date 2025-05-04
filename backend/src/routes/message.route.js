@@ -50,7 +50,7 @@ router.post("/send/:id", protectRoute, async (req, res) => {
     const newMessage = new Message({
       senderId,
       receiverId,
-      message: text || "",
+      text: text || "",  // Changed from message to text
       image: imageUrl
     });
 
