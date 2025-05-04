@@ -24,39 +24,49 @@ const ChatContainer = () => {
   }, [messages]);
 
   const Message = ({ message }) => {
-    const isSentByMe = message.senderId === authUser?._id;
-
+    const { authUser } = useAuthStore();
+    
+    // Compare string IDs to ensure consistent comparison
+    const isSentByMe = message.senderId?._id === authUser?._id || 
+                      message.senderId === authUser?._id;
+  
     return (
-        <div className={`flex items-end gap-3 ${isSentByMe ? "flex-row-reverse" : "flex-row"} w-full`}>
-            <div className="flex-shrink-0">
-                <img
-                    src={isSentByMe ? authUser?.profilePicture  || "/avatar.png" : selectedUser?.profilePicture || "/avatar.png"}
-                    alt="profile pic"
-                    className="size-8 rounded-full border"
-                />
-            </div>
-
-            <div className={`flex flex-col ${isSentByMe ? "items-end" : "items-start"} max-w-[60%]`}>
-                <div className={`px-4 py-2 ${
-                    isSentByMe
-                        ? "bg-[#7C3AED] text-white rounded-l-2xl rounded-tr-2xl"
-                        : "bg-[#2D3748] text-white rounded-r-2xl rounded-tl-2xl"
-                }`}>
-                    {message.image && (
-                        <img
-                            src={message.image}
-                            alt="Attachment"
-                            className="max-w-full rounded-md mb-2"
-                            loading="lazy"
-                        />
-                    )}
-                    {message.text && <p className="break-words">{message.text}</p>}  {/* Changed from message.message to message.text */}
-                </div>
-                <span className="text-xs text-gray-500 mt-1">
-                    {formatMessageTime(message.createdAt)}
-                </span>
-            </div>
+      <div className={`flex items-end gap-3 ${
+        isSentByMe ? "flex-row-reverse" : "flex-row"
+      } w-full`}>
+        <div className="flex-shrink-0">
+          <img
+            src={isSentByMe 
+              ? authUser?.profilePicture || "/avatar.png" 
+              : selectedUser?.profilePicture || "/avatar.png"}
+            alt="profile pic"
+            className="size-8 rounded-full border"
+          />
         </div>
+  
+        <div className={`flex flex-col ${
+          isSentByMe ? "items-end" : "items-start"
+        } max-w-[60%]`}>
+          <div className={`px-4 py-2 ${
+            isSentByMe
+              ? "bg-[#7C3AED] text-white rounded-l-2xl rounded-tr-2xl"
+              : "bg-[#2D3748] text-white rounded-r-2xl rounded-tl-2xl"
+          }`}>
+            {message.image && (
+              <img
+                src={message.image}
+                alt="Attachment"
+                className="max-w-full rounded-md mb-2"
+                loading="lazy"
+              />
+            )}
+            {message.text && <p className="break-words">{message.text}</p>}
+          </div>
+          <span className="text-xs text-gray-500 mt-1">
+            {formatMessageTime(message.createdAt)}
+          </span>
+        </div>
+      </div>
     );
   };
 

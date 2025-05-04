@@ -27,7 +27,12 @@ export const useChatStore = create((set, get) => ({
     set({ isMessagesLoading: true });
     try {
       const { data } = await axiosInstance.get(`/messages/${userId}`);
-      set({ messages: data });
+      // Transform the data to ensure consistent structure
+      const transformedMessages = data.map(message => ({
+        ...message,
+        senderId: message.senderId?._id || message.senderId
+      }));
+      set({ messages: transformedMessages });
     } catch (error) {
       console.error("Error fetching messages:", error);
       toast.error("Failed to fetch messages");
@@ -52,13 +57,16 @@ export const useChatStore = create((set, get) => ({
         }
       );
       
-      set({ messages: [...messages, data] });
-      return data;
+      // Transform the new message to match structure
+      const newMessage = {
+        ...data,
+        senderId: data.senderId?._id || data.senderId
+      };
+      
+      set({ messages: [...messages, newMessage] });
     } catch (error) {
       console.error("Send message error:", error);
-      const errorMessage = error.response?.data?.error || "Failed to send message";
-      toast.error(errorMessage);
-      throw error;
+      toast.error("Failed to send message");
     }
   },
 
