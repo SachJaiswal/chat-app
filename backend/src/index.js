@@ -5,8 +5,10 @@ import express from "express";
 import cookieParser from "cookie-parser";
 import connectDB from "./lib/db.js";
 import authRoutes from "./routes/auth.route.js";
-import messagesRoutes from "./routes/message.route.js";
+import messageRoutes from "./routes/message.route.js";
+import userRoutes from "./routes/user.route.js";
 import cors from "cors";
+
 
 const app = express();
 
@@ -30,7 +32,8 @@ app.use((req, res, next) => {
 
 // Routes
 app.use("/api/auth", authRoutes);
-app.use("/api/message", messagesRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/messages", messageRoutes);
 
 const PORT = process.env.PORT || 5002;
 
