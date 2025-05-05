@@ -33,13 +33,13 @@ app.use("/api/users", userRoutes);
 app.use("/api/messages", messageRoutes);
 
 if(process.env.NODE_ENV ==="production"){
-    const buildPath = path.resolve(__dirname, '../../frontend/dist');
-    app.use(express.static(buildPath)); // Serve static files from the React app
+    // Try this alternative path resolution
+    const buildPath = path.join(__dirname, '../frontend/dist');
+    app.use(express.static(buildPath));
 
     app.get("*", (req, res) => {
-        res.sendFile(path.join(buildPath, 'index.html')); // Serve the React app for all other routes
+        res.sendFile(path.join(buildPath, 'index.html'));
     });
-
 }
 
 // Global Error Handler
