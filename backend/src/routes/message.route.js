@@ -2,6 +2,7 @@ import express from "express";
 import { protectRoute } from "../middleware/auth.middleware.js";
 import Message from "../models/message.model.js";
 import { uploadToCloudinary } from "../lib/cloudinary.js";
+import { sendMessage } from "../controllers/message.controller.js";
 
 const router = express.Router();
 
@@ -27,7 +28,7 @@ router.get("/:id", protectRoute, async (req, res) => {
 });
 
 // Send message route
-router.post("/send/:id", protectRoute, async (req, res) => {
+router.post("/send/:id", protectRoute,sendMessage, async (req, res) => {
   try {
     const { text, image } = req.body;
     const { id: receiverId } = req.params;
@@ -66,5 +67,6 @@ router.post("/send/:id", protectRoute, async (req, res) => {
     res.status(500).json({ error: error.message || "Failed to send message" });
   }
 });
+//router.post("/send/:id", protectRoute, sendMessage);
 
 export default router;

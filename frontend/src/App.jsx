@@ -55,7 +55,7 @@ const App = () => {
   }
 
   return (
-    <div data-theme={theme}>
+    <div>
       <Navbar />
       <ErrorBoundary>
         <Routes>
