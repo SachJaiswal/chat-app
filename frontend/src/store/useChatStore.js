@@ -82,13 +82,22 @@ export const useChatStore = create((set, get) => ({
       const { selectedUser, messages } = get();
       if (!selectedUser) return;
 
+      // Transform the message to match expected structure
+      const transformedMessage = {
+        ...newMessage,
+        senderId: newMessage.senderId?._id || newMessage.senderId,
+        receiverId: newMessage.receiverId?._id || newMessage.receiverId
+      };
+
       // Check if the message belongs to current chat
       const isRelevantMessage =
-        (newMessage.sender?._id === selectedUser._id && newMessage.receiver?._id === useAuthStore.getState().authUser?._id) ||
-        (newMessage.receiver?._id === selectedUser._id && newMessage.sender?._id === useAuthStore.getState().authUser?._id);
+        (transformedMessage.senderId === selectedUser._id && 
+         transformedMessage.receiverId === useAuthStore.getState().authUser?._id) ||
+        (transformedMessage.receiverId === selectedUser._id && 
+         transformedMessage.senderId === useAuthStore.getState().authUser?._id);
 
       if (isRelevantMessage) {
-        set({ messages: [...messages, newMessage] });
+        set({ messages: [...messages, transformedMessage] });
       }
     });
   },
