@@ -10,6 +10,11 @@ import cors from "cors";
 import { app, server, io } from "./lib/socket.js";
 import express from "express";
 import path from "path";
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 // Middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
@@ -21,7 +26,6 @@ app.use(cors({
     credentials: true,
 }));
 const PORT = process.env.PORT || 5002;
-const __dirname = path.resolve(); // Get the current directory name
 
 // Routes
 app.use("/api/auth", authRoutes);
@@ -29,14 +33,14 @@ app.use("/api/users", userRoutes);
 app.use("/api/messages", messageRoutes);
 
 if(process.env.NODE_ENV ==="production"){
-    app.use(express.static(path.join(__dirname, "../frontend/dist"))); // Serve static files from the React app
+    const buildPath = path.resolve(__dirname, '../../frontend/dist');
+    app.use(express.static(buildPath)); // Serve static files from the React app
 
     app.get("*", (req, res) => {
-        res.sendFile(path.join(__dirname, "../frontend","dist","index.html")); // Serve the React app for all other routes
+        res.sendFile(path.join(buildPath, 'index.html')); // Serve the React app for all other routes
     });
 
 }
-
 
 // Global Error Handler
 app.use((err, req, res, next) => {
