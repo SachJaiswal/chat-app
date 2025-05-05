@@ -4,15 +4,13 @@
   },
   "type": "module",
   "dependencies": {
-    "express": "4.18.2",
-    "path-to-regexp": "6.2.1"
+    "express": "4.18.2"
   },
   "name": "chat-app",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
   "scripts": {
-  "build": "cd backend && npm install && cd ../frontend && npm install && npm run build && cd ..",
+    "build": "cd backend && npm install && cd ../frontend && npm install && npm run build && cd ..",
     "start": "cd backend && npm run start"
   },
   "repository": {
