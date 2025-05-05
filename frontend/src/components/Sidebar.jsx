@@ -26,7 +26,7 @@ const Sidebar = () => {
           <Users className="size-6" />
           <span className="font-medium hidden lg:block">Contacts</span>
         </div>
-        {/* TODO: Online filter toggle */}
+        
         <div className="mt-3 hidden lg:flex items-center gap-2">
           <label className="cursor-pointer flex items-center gap-2">
             <input
@@ -53,17 +53,18 @@ const Sidebar = () => {
                 ${selectedUser?._id === user._id ? "bg-base-300 ring-1 ring-base-300" : ""}
               `}
             >
-              <div className="relative mx-auto lg:mx-0">
+              <div className="relative mx-auto lg:mx-0 flex flex-col items-center">
                 <img
                   src={user.profilePicture || "/avatar.png"}
                   alt={user.name}
                   className="size-12 object-cover rounded-full"
                 />
                 {onlineUsers.includes(user._id) && (
+                  
                   <span
-                    className="absolute bottom-0 right-0 size-3 bg-green-500 
-                    rounded-full ring-2 ring-zinc-900"
-                  />
+                  className="absolute bottom-0 right-0 size-3 bg-green-500 
+                  rounded-full ring-2 ring-zinc-900"
+                />
                 )}
               </div>
 

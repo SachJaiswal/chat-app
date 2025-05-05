@@ -1,5 +1,6 @@
-import React from 'react'
+import React, { useEffect } from 'react';
 import { useChatStore } from "../store/useChatStore";
+import { useAuthStore } from "../store/useAuthStore";
 
 import Sidebar from "../components/Sidebar";
 import NoChatSelected from "../components/NoChatSelected";
@@ -7,6 +8,11 @@ import ChatContainer from "../components/ChatContainer";
 
 const HomePage = () => {
   const { selectedUser } = useChatStore();
+  const { onlineUsers } = useAuthStore();
+
+  useEffect(() => {
+    console.log("Current online users:", onlineUsers);
+  }, [onlineUsers]);
 
   return (
     <div className="h-screen bg-base-200">
@@ -22,4 +28,5 @@ const HomePage = () => {
     </div>
   );
 };
+
 export default HomePage;

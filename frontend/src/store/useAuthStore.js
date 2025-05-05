@@ -1,8 +1,10 @@
 import { create } from "zustand";
 import { axiosInstance } from "../lib/axios";
 import toast from "react-hot-toast";
+import { io } from "socket.io-client";
 
-export const useAuthStore = create((set) => ({
+
+export const useAuthStore = create((set,get) => ({
     authUser: null,
     isSignedUp: false,
     isLoggingIn: false,
@@ -11,11 +13,14 @@ export const useAuthStore = create((set) => ({
     isUpdatingProfile: false,
     isCheckingAuth: true,
     onlineUsers: [],
+    socket: null,
 
     checkAuth: async () => {
         try {
             const response = await axiosInstance.get("/auth/check");
             set({ authUser: response.data });
+            get().connectSocket();
+            toast.success("Logged in successfully");
         } catch (error) {
             set({ authUser: null });
             console.log("Error in CheckAuth",error);
@@ -30,6 +35,7 @@ export const useAuthStore = create((set) => ({
             const response = await axiosInstance.post("/auth/signup", data);
             set({ authUser: response.data });
             toast.success("Signup successful");
+            get().connectSocket();
         } catch (error) {
             console.log("Error in SignUp",error);
             toast.error(error.response?.data?.message || "Signup failed");
@@ -39,19 +45,24 @@ export const useAuthStore = create((set) => ({
     },
 
     logout: async () => {
-        set({ isLoggingOut: true });
         try {
+            const socket = get().socket;
+            if (socket) {
+                // Emit logout event before disconnecting
+                socket.emit("logout");
+            }
             await axiosInstance.post("/auth/logout");
-            set({ authUser: null });
-            toast.success("Logout successful");
-        }
-        catch (error) {
-            console.log("Error in Logout",error);
-            toast.error(error.response.data.message || "Logout failed");
-        } finally {
-            set({ isLoggingOut: false });
+            set({ 
+                authUser: null,
+                socket: null 
+            });
+            toast.success("Logged out successfully");
+        } catch (error) {
+            console.error("Logout error:", error);
+            toast.error(error.response?.data?.message || "Logout failed");
         }
     },
+
     login: async (data) => {
       set({ isLoggingIn: true });
       try {
@@ -64,17 +75,6 @@ export const useAuthStore = create((set) => ({
         toast.error(error.response.data.message);
       } finally {
         set({ isLoggingIn: false });
-      }
-    },
-  
-    logout: async () => {
-      try {
-        await axiosInstance.post("/auth/logout");
-        set({ authUser: null });
-        toast.success("Logged out successfully");
-        get().disconnectSocket();
-      } catch (error) {
-        toast.error(error.response.data.message);
       }
     },
   
@@ -93,21 +93,31 @@ export const useAuthStore = create((set) => ({
     },
   
     connectSocket: () => {
-      const { authUser } = get();
-      if (!authUser || get().socket?.connected) return;
-  
-      const socket = io(BASE_URL, {
-        query: {
-          userId: authUser._id,
-        },
-      });
-      socket.connect();
-  
-      set({ socket: socket });
-  
-      socket.on("getOnlineUsers", (userIds) => {
-        set({ onlineUsers: userIds });
-      });
+        const { authUser } = get();
+        if (!authUser || get().socket?.connected) return;
+
+        const socket = io('http://localhost:5002', {
+            query: {
+                userId: authUser._id,
+            },
+        });
+
+        socket.connect();
+
+        // Listen for online users updates
+        socket.on("getOnlineUsers", (users) => {
+            console.log("Received online users:", users);
+            set({ onlineUsers: Array.isArray(users) ? users : [users] });
+        });
+
+        // Handle connection success
+        socket.on("connect", () => {
+            console.log("Socket connected successfully");
+            // Emit setup event after connection
+            socket.emit("setup", authUser._id);
+        });
+
+        set({ socket: socket });
     },
     disconnectSocket: () => {
       if (get().socket?.connected) get().socket.disconnect();
